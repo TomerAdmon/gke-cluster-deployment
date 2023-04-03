@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: MPL-2.0
 
 variable "gke_username" {
-  default     = ""
+  default     = "username"
   description = "gke username"
 }
 
 variable "gke_password" {
-  default     = ""
+  default     = "password"
   description = "gke password"
 }
 
@@ -57,7 +57,21 @@ resource "google_container_node_pool" "primary_nodes" {
   }
 }
 
+module "gke_auth" {
+  source               = "terraform-google-modules/kubernetes-engine/google//modules/auth"
 
+  project_id           = var.project_id
+  cluster_name         = "${var.project_id}-gke"
+  location             = var.region
+  use_private_endpoint = true
+}
+
+resource "local_file" "kubeconfig" {
+  content  = module.gke_auth.kubeconfig_raw
+  filename = "${path.module}/kubeconfig"
+}
+
+  
 # # Kubernetes provider
 # # The Terraform Kubernetes Provider configuration below is used as a learning reference only. 
 # # It references the variables and resources provisioned in this file. 
@@ -65,15 +79,21 @@ resource "google_container_node_pool" "primary_nodes" {
 # # https://learn.hashicorp.com/terraform/kubernetes/provision-gke-cluster#optional-configure-terraform-kubernetes-provider
 # # To learn how to schedule deployments and services using the provider, go here: https://learn.hashicorp.com/tutorials/terraform/kubernetes-provider.
 
-# provider "kubernetes" {
-#   load_config_file = "false"
+provider "kubernetes" {
+   load_config_file = "false"
 
-#   host     = google_container_cluster.primary.endpoint
-#   username = var.gke_username
-#   password = var.gke_password
+   host     = google_container_cluster.primary.endpoint
+   username = var.gke_username
+   password = var.gke_password
 
-#   client_certificate     = google_container_cluster.primary.master_auth.0.client_certificate
-#   client_key             = google_container_cluster.primary.master_auth.0.client_key
-#   cluster_ca_certificate = google_container_cluster.primary.master_auth.0.cluster_ca_certificate
-# }
+   client_certificate     = google_container_cluster.primary.master_auth.0.client_certificate
+   client_key             = google_container_cluster.primary.master_auth.0.client_key
+   cluster_ca_certificate = google_container_cluster.primary.master_auth.0.cluster_ca_certificate
+ }
+  
+resource "kubernetes_secret" "gke_cluster_key" {
+  data = {
+    "kubeconfig" = module.gke_auth.kubeconfig_raw
+  }
+}
 
