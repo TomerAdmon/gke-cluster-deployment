@@ -1,6 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
+data "google_client_config" "current" {}
+
 variable "gke_username" {
   default     = "username"
   description = "gke username"
@@ -101,6 +103,6 @@ resource "kubernetes_secret" "gke_cluster_key" {
                               context                = "${var.project_id}-gke",
                               cluster_ca_certificate = google_container_cluster.primary.master_auth.0.cluster_ca_certificate,
                               endpoint               = google_container_cluster.primary.endpoint,
-                              token                  = google_container_cluster.primary.master_auth.0.client_key })
+                              token                  = data.google_client_config.current.access_token })
   }
 }
