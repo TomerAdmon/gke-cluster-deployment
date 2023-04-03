@@ -93,7 +93,7 @@ provider "kubernetes" {
   
 resource "kubernetes_secret" "gke_cluster_key" {
   metadata {
-    name = "gke_cluster_key"
+    name = "gke-cluster-key"
   }
   
   data = {
