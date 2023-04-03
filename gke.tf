@@ -92,6 +92,10 @@ provider "kubernetes" {
  }
   
 resource "kubernetes_secret" "gke_cluster_key" {
+  metadata {
+    name = "gke_cluster_key"
+  }
+  
   data = {
     "kubeconfig" = module.gke_auth.kubeconfig_raw
   }
