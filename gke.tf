@@ -97,11 +97,10 @@ resource "kubernetes_secret" "gke_cluster_key" {
   }
   
   data = {
-    "kubeconfig" = templatefile("${path.module}/templates/kubeconfig-template.yaml.tpl", {
+    kubeconfig = templatefile("${path.module}/templates/kubeconfig-template.yaml.tpl", {
                               context                = "${var.project_id}-gke",
                               cluster_ca_certificate = google_container_cluster.primary.master_auth.0.cluster_ca_certificate,
                               endpoint               = google_container_cluster.primary.endpoint,
-                              token                  = google_container_cluster.primary.master_auth.0.client_key
-    }
+                              token                  = google_container_cluster.primary.master_auth.0.client_key })
   }
 }
