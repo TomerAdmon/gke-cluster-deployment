@@ -95,7 +95,7 @@ resource "google_container_node_pool" "primary_nodes" {
   
 resource "kubernetes_secret" "gke_cluster_key" {
   metadata {
-    name = "gke-cluster-key",
+    name = "gke-cluster-key"
     namespace = "torque-sandboxes"
   }
   
